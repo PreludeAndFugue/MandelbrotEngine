@@ -6,8 +6,6 @@
 //  Copyright © 2017 Gary Kerr. All rights reserved.
 //
 
-import Foundation
-
 
 public struct MandelbrotSetPoint {
     public enum Test {

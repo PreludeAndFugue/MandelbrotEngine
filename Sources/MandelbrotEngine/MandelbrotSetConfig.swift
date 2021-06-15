@@ -9,6 +9,7 @@
 public struct MandelbrotSetConfig: CustomStringConvertible {
     public let imageWidth: Int
     public let imageHeight: Int
+    
     let width: Double
     let height: Double
     let centre: ComplexNumber

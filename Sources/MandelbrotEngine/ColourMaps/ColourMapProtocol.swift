@@ -32,8 +32,12 @@ extension ColourMapProtocol {
             return pixels[iterations % pixels.count]
         }
     }
+}
 
 
+// MARK: - Internal
+
+internal extension ColourMapProtocol {
     static func gradient(from: RGB, to: RGB, n: Int) -> [Pixel] {
         let dr = diff(m: to.r, n: from.r)/Double(n)
         let dg = diff(m: to.g, n: from.g)/Double(n)

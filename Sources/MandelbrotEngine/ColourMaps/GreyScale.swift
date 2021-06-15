@@ -9,10 +9,10 @@
 import Foundation
 
 public struct GreyScale: ColourMapProtocol {
-
     public let title = "Grey scale"
     public let pixels: [Pixel]
     public let blackPixel = Pixel(r: 0, g: 0, b: 0)
+
     private let pixelMin = 20
     private let pixelMax = 255
 

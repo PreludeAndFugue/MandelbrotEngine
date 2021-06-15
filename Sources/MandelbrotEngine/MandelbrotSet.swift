@@ -47,8 +47,6 @@ public struct MandelbrotSet {
                     continue
                 }
 
-//                let result = MandelbrotSetPoint(point: z, test: isInSetFast(point: z))
-//                let result = MandelbrotSetPoint(point: z, test: isInSetFast1(point: z))
                 let result = MandelbrotSetPoint(point: z, test: isInSetFast1a(x0: x, y0: y))
                 grid.append(result)
             }

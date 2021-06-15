@@ -12,10 +12,10 @@ import Foundation
 
 public struct SmoothScale: ColourMapProtocol {
 
-    static let (h1, s1, v1): (CGFloat, CGFloat, CGFloat) = (0.0, 1.0, 1.0)
-    static let (h2, s2, v2): (CGFloat, CGFloat, CGFloat) = (359.0, 1.0, 1.0)
+    private static let (h1, s1, v1): (CGFloat, CGFloat, CGFloat) = (0.0, 1.0, 1.0)
+    private static let (h2, s2, v2): (CGFloat, CGFloat, CGFloat) = (359.0, 1.0, 1.0)
 
-    let nColours = 500
+    private let nColours = 500
 
     public let title = "Smooth scale"
     public let blackPixel = Pixel(r: 0, g: 0, b: 0)
