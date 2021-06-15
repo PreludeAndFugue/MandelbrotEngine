@@ -19,7 +19,7 @@ import Foundation
 ///
 /// https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set
 ///
-struct MandelbrotSet {
+public struct MandelbrotSet {
 
     let config: MandelbrotSetConfig
 
