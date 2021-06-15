@@ -7,7 +7,8 @@
 //
 // http://stackoverflow.com/questions/369438/smooth-spectrum-for-mandelbrot-set-rendering
 
-import  Foundation
+import CoreGraphics
+import Foundation
 
 struct SmoothScale: ColourMapProtocol {
 

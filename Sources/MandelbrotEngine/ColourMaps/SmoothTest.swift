@@ -6,6 +6,7 @@
 //  Copyright © 2018 Gary Kerr. All rights reserved.
 //
 
+import CoreGraphics
 import Foundation
 
 struct SmoothTest: ColourMapProtocol {
