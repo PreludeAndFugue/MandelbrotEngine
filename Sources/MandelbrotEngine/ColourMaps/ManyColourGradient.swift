@@ -10,12 +10,12 @@ import Foundation
 
 public struct ManyColourGradient: ColourMapProtocol {
 
-    var title: String {
+    public var title: String {
         return "Many colour gradient: \(colourCount)"
     }
     
-    internal let pixels: [Pixel]
-    internal let blackPixel = Pixel(r: 0, g: 0, b: 0)
+    public let pixels: [Pixel]
+    public let blackPixel = Pixel(r: 0, g: 0, b: 0)
 
     private let colourCount: Int
 

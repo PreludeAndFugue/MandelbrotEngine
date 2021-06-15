@@ -17,9 +17,9 @@ public struct SmoothScale: ColourMapProtocol {
 
     let nColours = 500
 
-    internal let title = "Smooth scale"
-    internal let blackPixel = Pixel(r: 0, g: 0, b: 0)
-    let pixels: [Pixel]
+    public let title = "Smooth scale"
+    public let blackPixel = Pixel(r: 0, g: 0, b: 0)
+    public let pixels: [Pixel]
 
 
     init() {

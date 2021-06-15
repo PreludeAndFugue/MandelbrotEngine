@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ComplexNumber {
+public struct ComplexNumber {
     let x: Double
     let y: Double
 

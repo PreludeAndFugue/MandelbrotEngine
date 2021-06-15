@@ -21,10 +21,10 @@ public protocol ColourMapProtocol {
 
 
 extension ColourMapProtocol {
-    var id: String { title }
+    public var id: String { title }
 
     
-    func pixel(from test: MandelbrotSetPoint.Test) -> Pixel {
+    public func pixel(from test: MandelbrotSetPoint.Test) -> Pixel {
         switch test {
         case .inSet:
             return blackPixel

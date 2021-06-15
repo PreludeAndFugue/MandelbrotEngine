@@ -13,12 +13,12 @@ public struct SmoothTest: ColourMapProtocol {
     private let log2Value: Double = log(2)
     private let log4Value: Double = log(4)
 
-    internal let title = "Smooth Test"
-    internal let blackPixel = Pixel(r: 0, g: 0, b: 0)
-    let pixels: [Pixel] = []
+    public let title = "Smooth Test"
+    public let blackPixel = Pixel(r: 0, g: 0, b: 0)
+    public let pixels: [Pixel] = []
 
 
-    func pixel(from test: MandelbrotSetPoint.Test) -> Pixel {
+    public func pixel(from test: MandelbrotSetPoint.Test) -> Pixel {
         switch test {
         case .inSet:
             return blackPixel
