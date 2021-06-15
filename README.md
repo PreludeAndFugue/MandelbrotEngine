@@ -1,3 +1,3 @@
 # MandelbrotEngine
 
-A description of this package.
+A Mandelbrot set generator.
