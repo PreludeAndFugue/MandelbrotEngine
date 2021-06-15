@@ -25,7 +25,7 @@ public struct MandelbrotSetConfig: CustomStringConvertible {
     }
 
 
-    init(imageWidth: Int, imageHeight: Int) {
+    public init(imageWidth: Int, imageHeight: Int) {
         let centre = ComplexNumber(x: -0.5, y: 0)
         let height: Double = 4
         let width = height * Double(imageWidth) / Double(imageHeight)
@@ -74,7 +74,7 @@ public struct MandelbrotSetConfig: CustomStringConvertible {
     }
 
 
-    func zoomIn(centre: ComplexNumber) -> MandelbrotSetConfig {
+    public func zoomIn(centre: ComplexNumber) -> MandelbrotSetConfig {
         return MandelbrotSetConfig(
             imageWidth: imageWidth,
             imageHeight: imageHeight,

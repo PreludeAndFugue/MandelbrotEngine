@@ -7,7 +7,7 @@
 //
 
 public struct ColourMapFactory {
-    static var maps: [ColourMapProtocol] {
+    public static var maps: [ColourMapProtocol] {
         return [
             GreyScale(numberOfGreys: 200),
             YellowScale(numberOfYellows: 100),

@@ -6,7 +6,7 @@
 //  Copyright © 2017 Gary Kerr. All rights reserved.
 //
 
-struct Rectangle {
+public struct Rectangle {
     let xMin: Double
     let yMin: Double
     let xMax: Double
@@ -21,7 +21,7 @@ struct Rectangle {
     }
 
 
-    init(xMin: Int, yMin: Int, xMax: Int, yMax: Int) {
+    public init(xMin: Int, yMin: Int, xMax: Int, yMax: Int) {
         self.xMin = Double(xMin)
         self.yMin = Double(yMin)
         self.xMax = Double(xMax)
@@ -29,7 +29,7 @@ struct Rectangle {
     }
 
 
-    init(config: MandelbrotSetConfig) {
+    public init(config: MandelbrotSetConfig) {
         self.xMin = config.xMin
         self.xMax = config.xMax
         self.yMin = config.yMin

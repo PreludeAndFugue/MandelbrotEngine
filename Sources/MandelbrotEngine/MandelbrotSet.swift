@@ -23,11 +23,11 @@ public struct MandelbrotSet {
 
     let config: MandelbrotSetConfig
 
-    var grid: [MandelbrotSetPoint] = []
-    var imageSize: (width: Int, height: Int)
+    public var grid: [MandelbrotSetPoint] = []
+    public var imageSize: (width: Int, height: Int)
 
 
-    init(config: MandelbrotSetConfig, progress: Progress) {
+    public init(config: MandelbrotSetConfig, progress: Progress) {
         self.config = config
         let ys = Array(stride(from: config.yMin, to: config.yMax, by: config.dy))
         let xs = Array(stride(from: config.xMin, to: config.xMax, by: config.dx))
