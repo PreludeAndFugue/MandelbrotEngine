@@ -16,5 +16,5 @@ public struct MandelbrotSetPoint {
     }
 
     let point: ComplexNumber
-    var test: Test
+    public var test: Test
 }

@@ -7,8 +7,8 @@
 //
 
 public struct MandelbrotSetConfig: CustomStringConvertible {
-    let imageWidth: Int
-    let imageHeight: Int
+    public let imageWidth: Int
+    public let imageHeight: Int
     let width: Double
     let height: Double
     let centre: ComplexNumber
