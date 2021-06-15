@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct GreyScale: ColourMapProtocol {
+public struct GreyScale: ColourMapProtocol {
 
     internal let title = "Grey scale"
     internal let pixels: [Pixel]

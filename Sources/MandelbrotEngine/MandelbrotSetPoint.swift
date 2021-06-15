@@ -9,8 +9,7 @@
 import Foundation
 
 
-struct MandelbrotSetPoint {
-
+public struct MandelbrotSetPoint {
     enum Test {
         case inSet
         case notInSet(iterations: Int, finalPoint: ComplexNumber)

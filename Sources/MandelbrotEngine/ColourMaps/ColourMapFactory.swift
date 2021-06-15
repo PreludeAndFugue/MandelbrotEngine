@@ -6,7 +6,7 @@
 //  Copyright © 2018 Gary Kerr. All rights reserved.
 //
 
-struct ColourMapFactory {
+public struct ColourMapFactory {
     static var maps: [ColourMapProtocol] {
         return [
             GreyScale(numberOfGreys: 200),

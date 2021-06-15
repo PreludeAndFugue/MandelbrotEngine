@@ -10,7 +10,7 @@
 import CoreGraphics
 import Foundation
 
-struct SmoothScale: ColourMapProtocol {
+public struct SmoothScale: ColourMapProtocol {
 
     static let (h1, s1, v1): (CGFloat, CGFloat, CGFloat) = (0.0, 1.0, 1.0)
     static let (h2, s2, v2): (CGFloat, CGFloat, CGFloat) = (360.0, 1.0, 1.0)

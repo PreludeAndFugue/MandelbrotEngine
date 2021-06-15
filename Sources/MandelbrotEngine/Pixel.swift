@@ -6,7 +6,7 @@
 //  Copyright © 2017 Gary Kerr. All rights reserved.
 //
 
-struct Pixel {
+public struct Pixel {
     var a: UInt8 = 255
     var r: UInt8
     var g: UInt8

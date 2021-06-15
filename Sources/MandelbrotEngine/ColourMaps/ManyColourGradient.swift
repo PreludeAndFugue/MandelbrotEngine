@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ManyColourGradient: ColourMapProtocol {
+public struct ManyColourGradient: ColourMapProtocol {
 
     var title: String {
         return "Many colour gradient: \(colourCount)"

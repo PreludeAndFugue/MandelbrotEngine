@@ -9,7 +9,7 @@
 import CoreGraphics
 import Foundation
 
-struct SmoothTest: ColourMapProtocol {
+public struct SmoothTest: ColourMapProtocol {
     private let log2Value: Double = log(2)
     private let log4Value: Double = log(4)
 

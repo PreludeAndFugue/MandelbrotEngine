@@ -6,7 +6,7 @@
 //  Copyright © 2017 Gary Kerr. All rights reserved.
 //
 
-struct MandelbrotSetConfig: CustomStringConvertible {
+public struct MandelbrotSetConfig: CustomStringConvertible {
     let imageWidth: Int
     let imageHeight: Int
     let width: Double

@@ -9,7 +9,7 @@
 import CoreGraphics
 
 
-protocol ColourMapProtocol {
+public protocol ColourMapProtocol {
     typealias RGB = (r: UInt8, g: UInt8, b: UInt8)
 
     var id: String { get }

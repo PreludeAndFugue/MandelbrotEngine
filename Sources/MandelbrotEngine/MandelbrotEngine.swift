@@ -1,3 +1,3 @@
-public struct MandelbrotEngine {
+struct MandelbrotEngine {
     var text = "Hello, World!"
 }
