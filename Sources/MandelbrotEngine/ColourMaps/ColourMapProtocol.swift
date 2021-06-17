@@ -16,12 +16,23 @@ public protocol ColourMapProtocol {
     var title: String { get }
     var blackPixel: Pixel { get }
     var pixels: [Pixel] { get }
+    var preview: [Pixel] { get }
     func pixel(from test: MandelbrotSetPoint.Test) -> Pixel
 }
 
 
 extension ColourMapProtocol {
     public var id: String { title }
+
+
+    public var preview: [Pixel] {
+        let count = pixels.count
+        var output: [Pixel] = []
+        for _ in 0..<count {
+            output.append(contentsOf: pixels)
+        }
+        return output
+    }
 
     
     public func pixel(from test: MandelbrotSetPoint.Test) -> Pixel {
