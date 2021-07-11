@@ -9,11 +9,10 @@
 public struct MandelbrotSetConfig: CustomStringConvertible {
     public let imageWidth: Int
     public let imageHeight: Int
-    
-    let width: Double
-    let height: Double
-    let centre: ComplexNumber
-    let iterations: Int
+    public let iterations: Int
+    public let width: Double
+    public let height: Double
+    public let centre: ComplexNumber
 
 
     init(imageWidth: Int, imageHeight: Int, width: Double, height: Double, centre: ComplexNumber, iterations: Int) {
@@ -40,27 +39,27 @@ public struct MandelbrotSetConfig: CustomStringConvertible {
         )
     }
 
-    var xMin: Double {
+    public var xMin: Double {
         return centre.x - width/2
     }
 
-    var xMax: Double {
+    public var xMax: Double {
         return centre.x + width/2
     }
 
-    var yMin: Double {
+    public var yMin: Double {
         return centre.y - height/2
     }
 
-    var yMax: Double {
+    public var yMax: Double {
         return centre.y + height/2
     }
 
-    var dx: Double {
+    public var dx: Double {
         return width/Double(imageWidth)
     }
 
-    var dy: Double {
+    public var dy: Double {
         return height/Double(imageHeight)
     }
 
