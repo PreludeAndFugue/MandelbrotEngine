@@ -56,7 +56,7 @@ public struct MandelbrotSet {
     }
 
 
-    func gridIterations(config: MandelbrotSetConfig) -> Int {
+    public func gridIterations(config: MandelbrotSetConfig) -> Int {
         var total = 0
         for point in grid {
             switch point.test {
