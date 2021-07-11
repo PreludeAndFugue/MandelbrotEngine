@@ -136,6 +136,7 @@ private extension MandelbrotSet {
     ///
     /// - Parameter point: The complex number
     /// - Returns: The result
+    @inline(__always)
     func isInSetFast1a(x0: Double, y0: Double) -> MandelbrotSetPoint.Test {
         var x = 0.0
         var y = 0.0
