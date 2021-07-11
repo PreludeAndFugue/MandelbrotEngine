@@ -27,7 +27,7 @@ public struct MandelbrotSet {
     public var imageSize: (width: Int, height: Int)
 
 
-    public init(config: MandelbrotSetConfig, progress: Progress) {
+    public init(config: MandelbrotSetConfig, progress: Progress, timer: @escaping Timer.Action) {
         self.config = config
         let ys = Array(stride(from: config.yMin, to: config.yMax, by: config.dy))
         let xs = Array(stride(from: config.xMin, to: config.xMax, by: config.dx))
@@ -35,7 +35,7 @@ public struct MandelbrotSet {
         grid.reserveCapacity(xs.count * ys.count)
 
         let progressHelper = ProgressHelper(steps: imageSize.height, progress: progress)
-        let timerHelper = TimerHelper()
+        let timerHelper = Timer(action: timer)
 
         for (i, y) in ys.enumerated() {
             for x in xs {
