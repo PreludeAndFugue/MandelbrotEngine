@@ -20,10 +20,11 @@ public struct ManyColourGradient: ColourMapProtocol {
 
     init(n: Int, colours: RGB...) {
         colourCount = colours.count
-        var secondColours = Array(colours[1 ... colours.count - 1])
-        secondColours.append(colours.first!)
-        pixels = zip(colours, secondColours)
-            .map({ ManyColourGradient.gradient(from: $0, to: $1, n: n) })
-            .reduce([], { x, y in x + y })
+        let colourMap = try! GradientColourMap(
+            title: "Many colour gradient: \(colourCount)",
+            colourStops: colours,
+            stepsPerSegment: n
+        )
+        pixels = colourMap.pixels
     }
 }

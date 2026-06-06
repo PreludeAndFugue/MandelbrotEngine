@@ -14,7 +14,12 @@ public struct APIMandelbrotSet: ColourMapProtocol {
 
 
     init() {
-        pixels = APIMandelbrotSet.makePixels()
+        let colourMap = try! GradientColourMap(
+            title: title,
+            colourStops: APIMandelbrotSet.colourStops,
+            stepsPerSegment: 18
+        )
+        pixels = colourMap.pixels
     }
 }
 
@@ -41,13 +46,4 @@ private extension APIMandelbrotSet {
         (r: 0, g: 0, b: 2),
         (r: 255, g: 255, b: 255)
     ]
-
-
-    static func makePixels() -> [Pixel] {
-        let numberOfSteps = 18
-        let nextColourStops = Array(colourStops.dropFirst()) + [colourStops[0]]
-        return zip(colourStops, nextColourStops)
-            .map({ gradient(from: $0, to: $1, n: numberOfSteps) })
-            .reduce([], { x, y in x + y })
-    }
 }
