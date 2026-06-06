@@ -31,5 +31,9 @@ func hsv_to_rgb(h: CGFloat, s: CGFloat, v: CGFloat) -> (r: UInt8, g: UInt8, b: U
         (r1, g1, b1) = (0, 0, 0)
     }
     let m = v - c
-    return (UInt8(255 * (r1 + m)), UInt8(255 * (g1 + m)), UInt8(255 * (b1 + m)))
+    return (
+        UInt8((255 * (r1 + m)).rounded()),
+        UInt8((255 * (g1 + m)).rounded()),
+        UInt8((255 * (b1 + m)).rounded())
+    )
 }

@@ -20,6 +20,7 @@ public struct ColourMapFactory {
                 n: 70,
                 colours: (r: 255, g: 0, b: 0), (r: 255, g: 255, b: 0), (r: 255, g: 255, b: 255)
             ),
+            APIMandelbrotSet(),
             SmoothTest()
         ]
     }
