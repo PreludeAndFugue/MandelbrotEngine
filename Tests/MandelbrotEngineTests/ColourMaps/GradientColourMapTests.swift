@@ -124,21 +124,86 @@ final class GradientColourMapTests: XCTestCase {
             name: "Mapping stops",
             stops: [
                 ColourStop(position: 0.0, rgb: (r: 10, g: 0, b: 0)),
-                ColourStop(position: 1.0, rgb: (r: 80, g: 0, b: 0))
+                ColourStop(position: 1.0, rgb: (r: 250, g: 0, b: 0))
             ]
         )
         let colourMap = try GradientColourMap(
             palette: palette,
-            sampleCount: 8,
+            sampleCount: 256,
             mapping: .smoothEscape,
+            escapePeriod: 4,
             isCyclic: false
         )
-        let pixel = colourMap.pixel(from: .notInSet(
-            iterations: 10,
+        let firstPixel = colourMap.pixel(from: .notInSet(
+            iterations: 1,
+            finalPoint: ComplexNumber(x: 2, y: 0)
+        ))
+        let secondPixel = colourMap.pixel(from: .notInSet(
+            iterations: 1,
             finalPoint: ComplexNumber(x: 100, y: 0)
         ))
 
-        XCTAssertEqual(pixel.r, colourMap.pixels[0].r)
+        XCTAssertNotEqual(firstPixel.r, secondPixel.r)
+    }
+
+
+    func testPixelAtSamplesPaletteContinuously() throws {
+        let palette = ColourPalette(
+            name: "Continuous stops",
+            stops: [
+                ColourStop(position: 0.0, rgb: (r: 0, g: 0, b: 0)),
+                ColourStop(position: 1.0, rgb: (r: 100, g: 0, b: 0))
+            ]
+        )
+        let colourMap = try GradientColourMap(palette: palette, sampleCount: 2, isCyclic: false)
+        let pixel = colourMap.pixel(at: 0.25)
+
+        XCTAssertEqual(pixel.r, 25)
+    }
+
+
+    func testColourCurveAdjustsOutput() throws {
+        let palette = ColourPalette(
+            name: "Curved stops",
+            stops: [
+                ColourStop(position: 0.0, rgb: (r: 64, g: 64, b: 64)),
+                ColourStop(position: 1.0, rgb: (r: 128, g: 128, b: 128))
+            ]
+        )
+        let colourMap = try GradientColourMap(
+            palette: palette,
+            sampleCount: 2,
+            curve: ColourCurve(brightness: 0.1),
+            isCyclic: false
+        )
+        let pixel = colourMap.pixel(at: 0.0)
+
+        XCTAssertGreaterThan(pixel.r, 64)
+    }
+
+
+    func testDitheringIsDeterministic() throws {
+        let palette = ColourPalette(
+            name: "Dithered stops",
+            stops: [
+                ColourStop(position: 0.0, rgb: (r: 0, g: 0, b: 0)),
+                ColourStop(position: 1.0, rgb: (r: 255, g: 255, b: 255))
+            ]
+        )
+        let colourMap = try GradientColourMap(
+            palette: palette,
+            sampleCount: 256,
+            mapping: .smoothEscape,
+            ditherStrength: 0.5,
+            escapePeriod: 8,
+            isCyclic: false
+        )
+        let test = MandelbrotSetPoint.Test.notInSet(
+            iterations: 10,
+            finalPoint: ComplexNumber(x: 12, y: 3)
+        )
+
+        XCTAssertEqual(colourMap.pixel(from: test).r, colourMap.pixel(from: test).r)
     }
 
 

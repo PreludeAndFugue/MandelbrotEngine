@@ -21,6 +21,29 @@ public enum ColourMapping {
 }
 
 
+public struct ColourCurve {
+    public static let identity = ColourCurve()
+
+    public let contrast: Double
+    public let brightness: Double
+    public let gamma: Double
+    public let saturation: Double
+
+
+    public init(
+        contrast: Double = 1.0,
+        brightness: Double = 0.0,
+        gamma: Double = 1.0,
+        saturation: Double = 1.0
+    ) {
+        self.contrast = contrast
+        self.brightness = brightness
+        self.gamma = gamma
+        self.saturation = saturation
+    }
+}
+
+
 public struct ColourStop {
     public let position: Double
     public let colour: Pixel
@@ -66,6 +89,10 @@ public struct GradientColourMap: ColourMapProtocol {
     public let pixels: [Pixel]
     public let mapping: ColourMapping
     public let palette: ColourPalette
+    public let curve: ColourCurve
+    public let ditherStrength: Double
+    public let escapePeriod: Double
+    public let isCyclic: Bool
 
 
     public init(
@@ -93,6 +120,14 @@ public struct GradientColourMap: ColourMapProtocol {
         self.blackPixel = blackPixel
         self.mapping = .iterationModulo
         self.palette = palette
+        self.curve = .identity
+        self.ditherStrength = 0.0
+        self.escapePeriod = Double(GradientColourMap.sampleCount(
+            colourStopCount: colourStops.count,
+            stepsPerSegment: stepsPerSegment,
+            isCyclic: isCyclic
+        ))
+        self.isCyclic = isCyclic
         self.pixels = GradientColourMap.makePixels(
             palette: palette,
             sampleCount: GradientColourMap.sampleCount(
@@ -100,7 +135,8 @@ public struct GradientColourMap: ColourMapProtocol {
                 stepsPerSegment: stepsPerSegment,
                 isCyclic: isCyclic
             ),
-            isCyclic: isCyclic
+            isCyclic: isCyclic,
+            curve: .identity
         )
     }
 
@@ -111,6 +147,9 @@ public struct GradientColourMap: ColourMapProtocol {
         sampleCount: Int = 512,
         blackPixel: Pixel = Pixel(r: 0, g: 0, b: 0),
         mapping: ColourMapping = .iterationModulo,
+        curve: ColourCurve = .identity,
+        ditherStrength: Double = 0.0,
+        escapePeriod: Double = 64.0,
         isCyclic: Bool = true
     ) throws {
         guard sampleCount > 0 else {
@@ -122,10 +161,15 @@ public struct GradientColourMap: ColourMapProtocol {
         self.blackPixel = blackPixel
         self.mapping = mapping
         self.palette = palette
+        self.curve = curve
+        self.ditherStrength = ditherStrength
+        self.escapePeriod = escapePeriod
+        self.isCyclic = isCyclic
         self.pixels = GradientColourMap.makePixels(
             palette: palette,
             sampleCount: sampleCount,
-            isCyclic: isCyclic
+            isCyclic: isCyclic,
+            curve: curve
         )
     }
 
@@ -139,9 +183,16 @@ public struct GradientColourMap: ColourMapProtocol {
             case .iterationModulo:
                 return pixels[iterations % pixels.count]
             case .smoothEscape:
-                return pixels[smoothIndex(iterations: iterations, finalPoint: finalPoint)]
+                return pixel(at: smoothPosition(iterations: iterations, finalPoint: finalPoint))
             }
         }
+    }
+
+
+    public func pixel(at position: Double) -> Pixel {
+        let wrappedPosition = wrapped(position)
+        let pixel = samplePalette(position: wrappedPosition)
+        return GradientColourMap.apply(curve: curve, to: pixel)
     }
 }
 
@@ -177,24 +228,32 @@ private extension GradientColourMap {
     }
 
 
-    static func makePixels(palette: ColourPalette, sampleCount: Int, isCyclic: Bool) -> [Pixel] {
+    static func makePixels(
+        palette: ColourPalette,
+        sampleCount: Int,
+        isCyclic: Bool,
+        curve: ColourCurve
+    ) -> [Pixel] {
         let count = max(sampleCount, 1)
         if count == 1 {
-            return [palette.stops[0].colour]
+            return [apply(curve: curve, to: palette.stops[0].colour)]
         }
         let wrapSpan = palette.stops[palette.stops.count - 1].position - palette.stops[palette.stops.count - 2].position
         let cyclicLength = 1.0 + wrapSpan
         return (0..<count).map { index in
+            let pixel: Pixel
             if isCyclic {
                 let position = Double(index) / Double(count) * cyclicLength
                 if position > 1.0 {
-                    return sampleWrapped(palette: palette, position: position, wrapSpan: wrapSpan)
+                    pixel = sampleWrapped(palette: palette, position: position, wrapSpan: wrapSpan)
+                } else {
+                    pixel = sample(palette: palette, position: position)
                 }
-                return sample(palette: palette, position: position)
             } else {
                 let position = Double(index) / Double(count - 1)
-                return sample(palette: palette, position: position)
+                pixel = sample(palette: palette, position: position)
             }
+            return apply(curve: curve, to: pixel)
         }
     }
 
@@ -293,15 +352,66 @@ private extension GradientColourMap {
     }
 
 
-    func smoothIndex(iterations: Int, finalPoint: ComplexNumber) -> Int {
+    func smoothPosition(iterations: Int, finalPoint: ComplexNumber) -> Double {
         let modulus = sqrt(finalPoint.modulus())
         guard modulus > 1 else {
-            return iterations % pixels.count
+            return wrapped(Double(iterations) / escapePeriod)
         }
         let smoothIteration = Double(iterations + 1) - log(log(modulus)) / log(2)
-        let wrapped = smoothIteration.truncatingRemainder(dividingBy: Double(pixels.count))
-        let positiveWrapped = wrapped < 0 ? wrapped + Double(pixels.count) : wrapped
-        return Int(positiveWrapped) % pixels.count
+        let dither = ditherOffset(iterations: iterations, finalPoint: finalPoint)
+        return wrapped((smoothIteration + dither) / escapePeriod)
+    }
+
+
+    func ditherOffset(iterations: Int, finalPoint: ComplexNumber) -> Double {
+        guard ditherStrength > 0 else {
+            return 0
+        }
+        let value = deterministicUnitValue(iterations: iterations, finalPoint: finalPoint)
+        return (value - 0.5) * ditherStrength
+    }
+
+
+    func deterministicUnitValue(iterations: Int, finalPoint: ComplexNumber) -> Double {
+        var hash = UInt64(bitPattern: Int64(iterations))
+        hash ^= finalPoint.x.bitPattern &* 0x9E3779B185EBCA87
+        hash ^= finalPoint.y.bitPattern &* 0xC2B2AE3D27D4EB4F
+        hash ^= hash >> 33
+        hash &*= 0xff51afd7ed558ccd
+        hash ^= hash >> 33
+        hash &*= 0xc4ceb9fe1a85ec53
+        hash ^= hash >> 33
+        return Double(hash & 0xFFFF) / Double(0xFFFF)
+    }
+
+
+    func wrapped(_ position: Double) -> Double {
+        if isCyclic {
+            var output = position.truncatingRemainder(dividingBy: 1.0)
+            if output < 0 {
+                output += 1.0
+            }
+            return output
+        }
+        return GradientColourMap.clamp(position)
+    }
+
+
+    func samplePalette(position: Double) -> Pixel {
+        guard isCyclic else {
+            return GradientColourMap.sample(palette: palette, position: position)
+        }
+        let wrapSpan = palette.stops[palette.stops.count - 1].position - palette.stops[palette.stops.count - 2].position
+        let cyclicLength = 1.0 + wrapSpan
+        let cyclicPosition = position * cyclicLength
+        if cyclicPosition > 1.0 {
+            return GradientColourMap.sampleWrapped(
+                palette: palette,
+                position: cyclicPosition,
+                wrapSpan: wrapSpan
+            )
+        }
+        return GradientColourMap.sample(palette: palette, position: cyclicPosition)
     }
 
 
@@ -417,5 +527,45 @@ private extension GradientColourMap {
 
     static func clamp(_ value: Double) -> Double {
         return min(max(value, 0.0), 1.0)
+    }
+
+
+    static func apply(curve: ColourCurve, to pixel: Pixel) -> Pixel {
+        let source = (
+            r: Double(pixel.r) / 255.0,
+            g: Double(pixel.g) / 255.0,
+            b: Double(pixel.b) / 255.0
+        )
+        let luminance = 0.2126 * source.r + 0.7152 * source.g + 0.0722 * source.b
+        let adjusted = (
+            r: applyChannelCurve(
+                value: luminance + (source.r - luminance) * curve.saturation,
+                curve: curve
+            ),
+            g: applyChannelCurve(
+                value: luminance + (source.g - luminance) * curve.saturation,
+                curve: curve
+            ),
+            b: applyChannelCurve(
+                value: luminance + (source.b - luminance) * curve.saturation,
+                curve: curve
+            )
+        )
+        return Pixel(
+            r: UInt8((adjusted.r * 255).rounded()),
+            g: UInt8((adjusted.g * 255).rounded()),
+            b: UInt8((adjusted.b * 255).rounded())
+        )
+    }
+
+
+    static func applyChannelCurve(value: Double, curve: ColourCurve) -> Double {
+        let contrasted = (value - 0.5) * curve.contrast + 0.5
+        let brightened = contrasted + curve.brightness
+        let clamped = clamp(brightened)
+        guard curve.gamma > 0 else {
+            return clamped
+        }
+        return clamp(pow(clamped, 1.0 / curve.gamma))
     }
 }
