@@ -15,9 +15,8 @@ public struct APIMandelbrotSet: ColourMapProtocol {
 
     init() {
         let colourMap = try! GradientColourMap(
-            title: title,
-            colourStops: APIMandelbrotSet.colourStops,
-            stepsPerSegment: 18
+            palette: APIMandelbrotSet.palette,
+            sampleCount: APIMandelbrotSet.colourStops.count * 18
         )
         pixels = colourMap.pixels
     }
@@ -46,4 +45,12 @@ private extension APIMandelbrotSet {
         (r: 0, g: 0, b: 2),
         (r: 255, g: 255, b: 255)
     ]
+
+    static let palette = ColourPalette(
+        name: "API Mandelbrot set",
+        stops: colourStops.enumerated().map({ index, rgb in
+            ColourStop(position: Double(index) / Double(colourStops.count - 1), rgb: rgb)
+        }),
+        interpolation: .oklab
+    )
 }
