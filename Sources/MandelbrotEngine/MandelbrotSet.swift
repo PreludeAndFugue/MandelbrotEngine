@@ -29,28 +29,37 @@ public struct MandelbrotSet {
 
     public init(config: MandelbrotSetConfig, progress: Progress, timer: @escaping Timer.Action) {
         self.config = config
-        let ys = Array(stride(from: config.yMin, to: config.yMax, by: config.dy))
-        let xs = Array(stride(from: config.xMin, to: config.xMax, by: config.dx))
-        imageSize = (xs.count, ys.count)
-        grid.reserveCapacity(xs.count * ys.count)
+        imageSize = (config.imageWidth, config.imageHeight)
+        let placeholder = MandelbrotSetPoint(point: ComplexNumber(x: 0, y: 0), test: .inSet)
+        grid = Array(repeating: placeholder, count: imageSize.width * imageSize.height)
 
         let progressHelper = ProgressHelper(steps: imageSize.height, progress: progress)
         let timerHelper = Timer(action: timer)
+        let xMin = config.xMin
+        let yMin = config.yMin
+        let dx = config.dx
+        let dy = config.dy
+        let iterations = config.iterations
+        let width = imageSize.width
+        let height = imageSize.height
+        let progressLock = NSLock()
+        var completedRows = 0
 
-        for (i, y) in ys.enumerated() {
-            for x in xs {
-                let z = ComplexNumber(x: x, y: y)
-
-                if inCardiod(x: x, y: y) {
-                    let result = MandelbrotSetPoint(point: z, test: .inSet)
-                    grid.append(result)
-                    continue
+        grid.withUnsafeMutableBufferPointer { buffer in
+            DispatchQueue.concurrentPerform(iterations: height) { yIndex in
+                let y = yMin + Double(yIndex) * dy
+                for xIndex in 0..<width {
+                    let x = xMin + Double(xIndex) * dx
+                    let index = yIndex * width + xIndex
+                    buffer[index] = MandelbrotSet.makePoint(x: x, y: y, iterations: iterations)
                 }
 
-                let result = MandelbrotSetPoint(point: z, test: isInSetFast1a(x0: x, y0: y))
-                grid.append(result)
+                progressLock.lock()
+                completedRows += 1
+                let step = completedRows
+                progressLock.unlock()
+                progressHelper.update(step: step)
             }
-            progressHelper.update(step: i)
         }
         timerHelper.end()
     }
@@ -138,11 +147,27 @@ private extension MandelbrotSet {
     /// - Returns: The result
     @inline(__always)
     func isInSetFast1a(x0: Double, y0: Double) -> MandelbrotSetPoint.Test {
+        return MandelbrotSet.isInSetFast1a(x0: x0, y0: y0, iterations: config.iterations)
+    }
+
+
+    @inline(__always)
+    static func makePoint(x: Double, y: Double, iterations: Int) -> MandelbrotSetPoint {
+        let z = ComplexNumber(x: x, y: y)
+        if inCardiod(x: x, y: y) {
+            return MandelbrotSetPoint(point: z, test: .inSet)
+        }
+        return MandelbrotSetPoint(point: z, test: isInSetFast1a(x0: x, y0: y, iterations: iterations))
+    }
+
+
+    @inline(__always)
+    static func isInSetFast1a(x0: Double, y0: Double, iterations: Int) -> MandelbrotSetPoint.Test {
         var x = 0.0
         var y = 0.0
         var x2 = 0.0
         var y2 = 0.0
-        for i in 0..<config.iterations {
+        for i in 0..<iterations {
             if x2 + y2 > 4 {
                 let z_i = ComplexNumber(x: x, y: y)
                 return .notInSet(iterations: i, finalPoint: z_i)
@@ -172,6 +197,12 @@ private extension MandelbrotSet {
     ///     (x + 1)^2 + y^2 <= 1/16
     ///
     func inCardiod(x: Double, y: Double) -> Bool {
+        return MandelbrotSet.inCardiod(x: x, y: y)
+    }
+
+
+    @inline(__always)
+    static func inCardiod(x: Double, y: Double) -> Bool {
         // main cardioid check
         let x2 = x * x
         let y2 = y * y
